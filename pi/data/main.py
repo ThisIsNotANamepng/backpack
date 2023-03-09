@@ -30,7 +30,7 @@ print("Imports complete")
 #mic = sr.Microphone()
 
 pygame.init()
-pygame.mixer.music.load("backpack/pi/data/beep.mp3")
+pygame.mixer.music.load("pi/data/beep.mp3")
 timeout = 1
 
 #Functions
@@ -64,6 +64,7 @@ def speak(command):
   global old_command
   old_command = command
   filename = command.replace(" ", "")+".wav"
+  """
   if filename in os.listdir("backpack/pi/data/sounds/On-Device"):
     os.system("mpg123 "+filename)
   else:
@@ -76,6 +77,7 @@ def speak(command):
     os.system("mimic3 --voice 'en_US/hifi-tts_low' --interactive '"+command+"' | aplay") 
   #  print("Say:  "+command)
     log(command)
+  """
 
 def isPhrase(phrase):
   phrases = ["I'm ready.", "What do you need?", "What's the title?", "What do you want to write?", "Accepted. Do you want to password-protect it?", "No password saved.", "What do you want your password to be?", "Answer not recognized, password not set.", "Starting file.", "Quitting. Goodbye.", "Do you want to write a body paragraph?", "Note written"] 
@@ -84,9 +86,13 @@ def isPhrase(phrase):
   return False
 
 def phrase(phrase):
-  f = open("backpack/pi/data/phrases-needed.txt", "a")
-  f.write(phrase)
+  f=open("phrases-needed.txt", "r")
+  re = f.readlines()
   f.close()
+  if phrase not in re:
+    f = open("phrases-needed.txt", "a")
+    f.write(phrase)
+    f.close()
   print(phrase)
   """
   phrases = ["I'm ready.", "What do you need?", "What's the title?", "What do you want to write?", "Accepted. Do you want to password-protect it?", "No password saved.", "What do you want your password to be?", "Answer not recognized, password not set.", "Starting file.", "Quitting. Goodbye.", "Do you want to write a body paragraph?", "Note written"] 
@@ -316,14 +322,78 @@ def diary():
   f = open("backpack/pi/data/diary.txt", "a")
   f.write(str(current_time)+" : "+getVoice()+"\n")
   f.close()
+def readTodo():
+  print("Read todo")
+  f = open("todo.txt", "r")
+  lines = f.readlines()
+  f.close()
+  co=0
+  for i in lines:
+    #time.sleep(1)
+    co+=1
+    speak(str(co)+", "+i)
+
+def addTodo():
+  print("Add todo")
+  phrase("What do you want to add?")
+  what = getVoice()
+  f = open("todo.txt", "a")
+  f.write("\n"+what)
+  f.close()
+def removeTodo():
+  print("Remove todo")
+  phrase("What do you want to check off?")
+  toRe = getVoice()+"\n"
+  f = open("todo.txt", "r")
+  re = f.readlines()
+  f.close()
+  if (toRe) in re:
+    re.remove(toRe)
+    f = open("todo.txt", "w")
+    for i in re:
+      f.write(i)
+    f.close()
+    phrase("Removed succesfully")
+  else:
+    phrase("That's not in the to do list, maybe try again?")
+def todoList():
+  print("Todo list")
+  phrase("Do you want to here your to do list?")
+  yn = getVoice()#Add buttons
+  if yn=="yes":
+    readTodo()
+  
+  if "add" in yn:
+    addTodo()
+  elif "remove" in yn:
+    removeTodo()
+  else:
+    phrase("I didn't understand your response, say again?")  
+    todoList()
+
+
 
 def audiobook(): #AudioBook directories (titles) have to be formated by hand to be a readable sentence
-  book="bill nye and boomerang"
+  book="bill nye and boomerang" #Need a button interupt
+  f=open("audiobok.txt", "r")
+  database = f.readlines()
+  f.close()
+  for i in database:
+    if i==book:
+      chapter = database[i+1]
+      break
+  chapters = os.listdir("audiooks/"+book)
+  while chapter<len(chapters-1):
+    os.system("mpg123 "+chapters[chapter])
+
+
+  #This is if button interrupt above
+  phrase("What chapter?")
+  chap = int(getVoice())
   books = os.listdir("back/pi/date/audiooks")
   if book in books:
     phrase("Book found.")
 
-  chapters = os.listdir("Music/")
 
 
 

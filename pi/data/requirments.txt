@@ -1,1 +1,6 @@
 pip install pygame
+pip install SpeechRecognition
+pip install pydub
+pip install pytz
+pip install aes-everywhere
+pip install playsound
