@@ -106,18 +106,19 @@ def getVoice(starter):
   return(input("Voice: "))
 
 def error():
-  say("There's been an error in the program. This is probably a programming issue, not anything you can fix while in use.")
+  print("There's been an error in the program. This is probably a programming issue, not anything you can fix while in use.")
+  speak("There's been an error in the program. This is probably a programming issue, not anything you can fix while in use.")
 
 def encrypt(plaintext, key):
   return(aes256.encrypt(plaintext, key))
 def decrypt(ciphertext, key):
   return(aes256.decrypt(ciphertext, key))
 
-def startAssistant():
+def startAssistant(t="t"):
   speak("What do you need?")
   request = getVoice()
 
-def spell():
+def spell(t="t"):
   speak("What do you want to spell?")
   word = getVoice()
   for i in word:
@@ -153,7 +154,7 @@ def text2int(textnum, numwords={}):
 
     return result + current
 
-def stopwatch():
+def stopwatch(t="t"):
   speak("Starting stopwatch")
   sound("321beeps")
   while True:
@@ -168,7 +169,7 @@ def stopwatch():
             speak("The time elapsed is "+str(round(end_time-start_time,2))+' seconds')
             break
 
-def takeNote():
+def takeNote(t="t"):
   current_time = datetime.datetime.now(pytz.timezone('America/Chicago'))
   speak("What's the title?")
   title = getVoice()
@@ -201,12 +202,12 @@ def takeNote():
     f.close()
     speak("Note written")
 
-def record():
+def record(t="t"):
   speak("Starting twenty minute recording.")
   #sudo apt-get install sound-recorder
   os.system("sound-recorder -c 2 -b 16 -P -S 20:00 recording.wav")
 
-def shuffleMusic():
+def shuffleMusic(t="t"):
   #phrase("Shuffling music")
   music_dir="/home/jack/Music/test/"
   music_list = os.listdir(music_dir)
@@ -217,7 +218,7 @@ def shuffleMusic():
     addLet = (random.choice(string.ascii_letters)+random.choice(string.ascii_letters)+random.choice(string.ascii_letters)+"-")
     os.system("mv "+music_dir+i+" "+music_dir+addLet+i)
 
-def playMusic():
+def playMusic(t="t"):
   speak("Playing music")
   shuffleMusic()
 
@@ -232,23 +233,29 @@ def playMusic():
     #pygame.mixer.music.pause()
     i+=1
 
-def pauseMusic():
+def pauseMusic(t="t"):
   speak("pause music")
 
-def stopMusic():
+def stopMusic(t="t"):
   speak("stop playing music")
 
-def skipMusic():
+def skipMusic(t="t"):
   speak("skip this song music")
 
-def backwordsMusic():
+def backwordsMusic(t="t"):
   speak("go back music")
 
-def connectBluetooth():
+def connectBluetooth(t="t"):
   os.system("./connect_bluetooth")
-  speak("Welcome")
+  f=open("bluetoothConnectionSuccess.txt", "r")
+  if "success" in f.read():
+    speak("Connected successfully. Welcome")
+  else:
+    print("Failed to connect")
+    speak("Failed to connect")
+  f.close()
 
-def getDate():
+def getDate(t="t"):
   today = datetime.datetime.now()
   days = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eigth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eithteenth", "ninteenth", "twentieth", "twenty first", "twenty second", "twenty third", "twenty fourth", "twenty fifth", "twenty sixth", "twenty seventh", "twenty eigth", "twenty ninth", "thirtieth", "thirty first", "thirty second"]
   months = ["January", "Febuary", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -258,18 +265,14 @@ def getDate():
   weekday = (today.strftime("%A"))
   speak("It is "+weekday+", "+month+" "+day)
 
-def getTime():
+def getTime(t="t"):
   now = datetime.datetime.now()
   speak(now.strftime("Its "+'%H:%M'))
 
 def repeatStatement():
   speak(old_command)
 
-def firstAid():
-  log("Started first aid")
-  speak("First aid assistant, asks if you know the cause, if you don't it asks for symptoms. Helps you through the treating process with Red Cross or another organization's data")
-
-def readEbook():
+def readEbook(t="t"):
   log("Started reading book")
   speak("Have a library of ebooks for reading offline")
 
@@ -278,22 +281,22 @@ def CPRBeat():#Need a way to use button to stop met
     pygame.mixer.music.play()
     time.sleep(0.6)
 
-def firstAid():
-  start(False)
+def firstAid(t="t"):
+  firstaid.start(False)
   
-def volumeUp():
+def volumeUp(t="t"):
   os.system("amixer -D pulse sset Master 5%+")
 
 def volumeUp(vol):
   os.system("amixer -D pulse sset Master "+vol+"%-")
 
-def volumeDown():
+def volumeDown(t="t"):
   os.system("amixer -D pulse sset Master 5%-")
 
 def volumeDown(vol):
   os.system("amixer -D pulse sset Master "+vol+"%+")
 
-def volume():
+def volume(t="t"):
   #Todo: Start with the existing volume
   speak("Adjusting volume")
   volume = 50
@@ -367,7 +370,7 @@ def audiobook(): #AudioBook directories (titles) have to be formated by hand to 
   if book in books:
     speak("Book found.")
 
-def quit():
+def quit(t="t"):
   speak("Quitting")
   quit()
 
@@ -383,7 +386,7 @@ def define():
   except:
     error()
 
-def searchWikipedia(toSearch):
+def searchWikipedia(toSearch, t="t"):
   toReturn="No article found"
   distance=0
 
@@ -406,122 +409,122 @@ def searchWikipedia(toSearch):
 
   f.close()
 
-def navigate():
+def navigate(t="t"):
   say("Navigate using osmmaps and the gps")
 
-def empty():
+def empty(t="t"):
   pass
 
-def stopStopwatch():
+def stopStopwatch(t="t"):
   say("Stop the stopwatch")
 
-def startStopwatch():
+def startStopwatch(t="t"):
   say("Start stopwatch")
 
-def getStopwatchTime():
+def getStopwatchTime(t="t"):
   say("Get the stopwatch time")
 
-def pauseResumeStopwatch():
+def pauseResumeStopwatch(t="t"):
   say("Toggle puase of stopwatch")
 
-def remoteUp():
+def remoteUp(t="t"):
   say("Up on remote")
 
-def remoteRight():
+def remoteRight(t="t"):
   say("Right on remote")
 
-def remoteDown():
+def remoteDown(t="t"):
   say("Down on remote")
 
-def remoteLeft():
+def remoteLeft(t="t"):
   say("Left on remote")
 
-def remoteClick():
+def remoteClick(t="t"):
   say("Press circle on the remote")
 
-def remotePausePlay():
+def remotePausePlay(t="t"):
   say("Toggle puase or play on the remote")
 
-def remoteBack():
+def remoteBack(t="t"):
   say("Back button on the remote")
 
 
-def generate_todo_id(title):
-    hash_str = str(time.time()) + title
-    hash_obj = hashlib.sha256(hash_str.encode())
-    return hash_obj.hexdigest()[:10]
+def generate_todo_id(title, t="t"):
+  hash_str = str(time.time()) + title
+  hash_obj = hashlib.sha256(hash_str.encode())
+  return hash_obj.hexdigest()[:10]
 
-def create_todo(title, description=None):
-    todo_id = generate_todo_id(title)
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO todos (todo_id, title, description) VALUES (?, ?, ?)", (todo_id, title, description))
-    conn.commit()
-    return("Success")
+def create_todo(title, description=None, t="t"):
+  todo_id = generate_todo_id(title)
+  cursor = conn.cursor()
+  cursor.execute("INSERT INTO todos (todo_id, title, description) VALUES (?, ?, ?)", (todo_id, title, description))
+  conn.commit()
+  return("Success")
 
-def delete_todo():
-    global selected
-    print(selected)
-    if selected==None: selected=0
-    try:
-      delete_id=read_todos()[selected][0]
-    except IndexError:
-      speak("Todo list is already empty")
-      return
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM todos WHERE todo_id=?", (delete_id,))
-    conn.commit()
-    if selected!=0: selected-=1
-    return("Success")
+def delete_todo(t="t"):
+  global selected
+  print(selected)
+  if selected==None: selected=0
+  try:
+    delete_id=read_todos()[selected][0]
+  except IndexError:
+    speak("Todo list is already empty")
+    return
+  cursor = conn.cursor()
+  cursor.execute("DELETE FROM todos WHERE todo_id=?", (delete_id,))
+  conn.commit()
+  if selected!=0: selected-=1
+  return("Success")
 
-def read_todos():
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM todos;")
-    rows = cursor.fetchall()
-    return rows
+def read_todos(t="t"):
+  cursor = conn.cursor()
+  cursor.execute("SELECT * FROM todos;")
+  rows = cursor.fetchall()
+  return rows
 
-def increase_selected():
-    global selected
-    print("Length of todo lsit", len(read_todos()))
-    if selected==len(read_todos())-1:
-      speak("Cursor already at max")
-      return
-    if selected==None:
-      selected=0
-      return
-    print("Increasing selected", selected)
-    selected+=1
-    speak(read_selected_todo())
+def increase_selected(t="t"):
+  global selected
+  print("Length of todo lsit", len(read_todos()))
+  if selected==len(read_todos())-1:
+    speak("Cursor already at max")
+    return
+  if selected==None:
+    selected=0
+    return
+  print("Increasing selected", selected)
+  selected+=1
+  speak(read_selected_todo())
 
-def decrease_selected():
-    global selected
-    if selected==0:
-      speak("Cursor already at minimum")
-      return
-    if selected==None:
-      selected=0
-    selected-=1
-    speak(read_selected_todo())
+def decrease_selected(t="t"):
+  global selected
+  if selected==0:
+    speak("Cursor already at minimum")
+    return
+  if selected==None:
+    selected=0
+  selected-=1
+  speak(read_selected_todo())
 
-def get_selected_todo():
+def get_selected_todo(t="t"):
     global selected
     if selected is None:
-        selected=0
-        return read_todos()[0]#Return the first item in the table
+      selected=0
+      return read_todos()[0]#Return the first item in the table
     else:
-        return read_todos()[selected]#Return the nth item in the table
+      return read_todos()[selected]#Return the nth item in the table
     
-def get_selected_todo_id():
-    global selected
-    if selected is None:
-        selected=0
-        return read_todos()[0][0]#Return the first item in the table
-    else:
-        return read_todos()[selected][0]#Return the nth item in the table
+def get_selected_todo_id(t="t"):
+  global selected
+  if selected is None:
+    selected=0
+    return read_todos()[0][0]#Return the first item in the table
+  else:
+    return read_todos()[selected][0]#Return the nth item in the table
 
-def read_selected_todo():
+def read_selected_todo(t="t"):
   speak(get_selected_todo()[1])
 
-def create_todo_face():
+def create_todo_face(t="t"):
   title=getVoice("What's the title?")
   yn = getVoice("Do you want a description?")
   if "yes" in yn:
@@ -530,11 +533,11 @@ def create_todo_face():
   else:
     create_todo(title)
   
-def read_all_todos():
+def read_all_todos(t="t"):
   for i in read_todos:
     speak(i[1])
 
-def edit_selected():
+def edit_selected(t="t"):
   speak("Replacing selected todo description")
   new = getVoice("What do you want the new description to be?")
   cursor = conn.cursor()
@@ -543,19 +546,19 @@ def edit_selected():
   return("Success")
 
 
-def generate_note_id(title):
+def generate_note_id(title, t="t"):
     hash_str = str(time.time()) + title
     hash_obj = hashlib.sha256(hash_str.encode())
     return hash_obj.hexdigest()[:10]
 
-def create_note(title, description=None):
+def create_note(title, description=None, t="t"):
     note_id = generate_note_id(title)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO notes (note_id, title, description) VALUES (?, ?, ?)", (note_id, title, description))
     conn.commit()
     return("Success")
 
-def delete_note():
+def delete_note(t="t"):
     global picked
     if picked==None: picked=0
     try:
@@ -569,13 +572,13 @@ def delete_note():
     if picked!=0: picked-=1
     return("Success")
 
-def read_notes():
+def read_notes(t="t"):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM notes;")
     rows = cursor.fetchall()
     return rows
 
-def increase_picked():
+def increase_picked(t="t"):
     global picked
     if picked==len(read_notes())-1:
       speak("Cursor already at max")
@@ -586,7 +589,7 @@ def increase_picked():
     picked+=1
     speak(read_picked_note())
 
-def decrease_picked():
+def decrease_picked(t="t"):
     global picked
     if picked==0:
       speak("Cursor already at minimum")
@@ -596,7 +599,7 @@ def decrease_picked():
     picked-=1
     speak(read_picked_note())
 
-def get_picked_note():
+def get_picked_note(t="t"):
     global picked
     if picked is None:
         picked=0
@@ -604,18 +607,18 @@ def get_picked_note():
     else:
         return read_notes()[picked]#Return the nth item in the table
     
-def get_picked_note_id():
-    global picked
-    if picked is None:
-        picked=0
-        return read_notes()[0][0]#Return the first item in the table
-    else:
-        return read_notes()[picked][0]#Return the nth item in the table
+def get_picked_note_id(t="t"):
+  global picked
+  if picked is None:
+    picked=0
+    return read_notes()[0][0]#Return the first item in the table
+  else:
+    return read_notes()[picked][0]#Return the nth item in the table
 
-def read_picked_note():
+def read_picked_note(t="t"):
   speak(get_picked_note()[1])
 
-def create_note_face():
+def create_note_face(t="t"):
   title=getVoice("What's the title?")
   yn = getVoice("Do you want a description?")
   if "yes" in yn:
@@ -624,11 +627,11 @@ def create_note_face():
   else:
     create_note(title)
   
-def read_all_notes():
+def read_all_notes(t="t"):
   for i in read_notes:
     speak(i[1])
 
-def edit_picked():
+def edit_picked(t="t"):
   speak("Replacing picked note description")
   new = getVoice("What do you want the new description to be?")
   cursor = conn.cursor()
@@ -637,8 +640,68 @@ def edit_picked():
   return("Success")
 
 
-def startMainMenu():
-  GPIO.remove_event_detect(8)
+def startMainMenu(t="t"):
+  GPIO.remove_event_detect(10)
+  GPIO.remove_event_detect(11)
+  GPIO.remove_event_detect(12)
+  GPIO.remove_event_detect(13)
+  GPIO.remove_event_detect(15)
+  GPIO.remove_event_detect(16)
+  GPIO.remove_event_detect(18)
+  GPIO.remove_event_detect(19)
+
+
+
+  GPIO.add_event_detect(10,GPIO.RISING,callback=shuffleMusic, bouncetime=200)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=read_all_todos, bouncetime=200)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=firstAid, bouncetime=200)
+  GPIO.add_event_detect(13,GPIO.RISING,callback=getTime, bouncetime=200)
+  GPIO.add_event_detect(15,GPIO.RISING,callback=volumeUp, bouncetime=200)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=volumeDown, bouncetime=200)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=startAssistant, bouncetime=200)
+  GPIO.add_event_detect(19,GPIO.RISING,callback=connectBluetooth, bouncetime=200)
+
+def startNotesMenu(t="t"):
+
+  GPIO.remove_event_detect(11)
+  GPIO.remove_event_detect(10)
+  GPIO.remove_event_detect(12)
+  GPIO.remove_event_detect(16)
+  GPIO.remove_event_detect(18)
+  GPIO.remove_event_detect(22)
+  GPIO.remove_event_detect(24)
+  GPIO.remove_event_detect(26)
+
+  GPIO.add_event_detect(11,GPIO.RISING,callback=increase_picked, bouncetime=200)
+  GPIO.add_event_detect(10,GPIO.RISING,callback=decrease_picked, bouncetime=200)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=startTodoMenu, bouncetime=200)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=startMainMenu, bouncetime=200)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=read_all_notes, bouncetime=200)
+  GPIO.add_event_detect(22,GPIO.RISING,callback=delete_note, bouncetime=200)
+  GPIO.add_event_detect(24,GPIO.RISING,callback=edit_picked, bouncetime=200)
+  GPIO.add_event_detect(26,GPIO.RISING,callback=create_note_face, bouncetime=200)
+
+def startTodoMenu(t="t"):
+  GPIO.remove_event_detect(11)
+  GPIO.remove_event_detect(10)
+  GPIO.remove_event_detect(12)
+  GPIO.remove_event_detect(16)
+  GPIO.remove_event_detect(18)
+  GPIO.remove_event_detect(22)
+  GPIO.remove_event_detect(24)
+  GPIO.remove_event_detect(26)
+
+  GPIO.add_event_detect(11,GPIO.RISING,callback=increase_selected, bouncetime=200)
+  GPIO.add_event_detect(10,GPIO.RISING,callback=decrease_selected, bouncetime=200)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=startNotesMenu, bouncetime=200)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=startMainMenu, bouncetime=200)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=read_all_todos, bouncetime=200)
+  GPIO.add_event_detect(22,GPIO.RISING,callback=delete_todo, bouncetime=200)
+  GPIO.add_event_detect(24,GPIO.RISING,callback=edit_selected, bouncetime=200)
+  GPIO.add_event_detect(26,GPIO.RISING,callback=create_todo_face, bouncetime=200)
+
+def startMusicMenu(t="t"):
+  GPIO.remove_event_detect(11)
   GPIO.remove_event_detect(10)
   GPIO.remove_event_detect(12)
   GPIO.remove_event_detect(16)
@@ -649,18 +712,17 @@ def startMainMenu():
 
 
 
-  GPIO.add_event_detect(8,GPIO.RISING,callback=shuffleMusic)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=read_all_todos)
-  GPIO.add_event_detect(12,GPIO.RISING,callback=firstAid)
-  GPIO.add_event_detect(16,GPIO.RISING,callback=getTime)
-  GPIO.add_event_detect(18,GPIO.RISING,callback=volumeUp)
-  GPIO.add_event_detect(22,GPIO.RISING,callback=volumeDown)
-  GPIO.add_event_detect(24,GPIO.RISING,callback=startAssistant)
-  GPIO.add_event_detect(26,GPIO.RISING,callback=connectBluetooth)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=shuffleMusic, bouncetime=200)
+  GPIO.add_event_detect(10,GPIO.RISING,callback=firstAid, bouncetime=200)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=playMusic, bouncetime=200)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=test)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=test)
+  GPIO.add_event_detect(22,GPIO.RISING,callback=test)
+  GPIO.add_event_detect(24,GPIO.RISING,callback=test)
+  GPIO.add_event_detect(26,GPIO.RISING,callback=test)
 
-def startNotesMenu():
-
-  GPIO.remove_event_detect(8)
+def startAssistantMenu(t="t"):
+  GPIO.remove_event_detect(11)
   GPIO.remove_event_detect(10)
   GPIO.remove_event_detect(12)
   GPIO.remove_event_detect(16)
@@ -669,17 +731,17 @@ def startNotesMenu():
   GPIO.remove_event_detect(24)
   GPIO.remove_event_detect(26)
 
-  GPIO.add_event_detect(8,GPIO.RISING,callback=increase_picked)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=decrease_picked)
-  GPIO.add_event_detect(12,GPIO.RISING,callback=startTodoMenu)
-  GPIO.add_event_detect(16,GPIO.RISING,callback=startMainMenu)
-  GPIO.add_event_detect(18,GPIO.RISING,callback=read_all_notes)
-  GPIO.add_event_detect(22,GPIO.RISING,callback=delete_note)
-  GPIO.add_event_detect(24,GPIO.RISING,callback=edit_picked)
-  GPIO.add_event_detect(26,GPIO.RISING,callback=create_note_face)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=volumeUp, bouncetime=200)
+  GPIO.add_event_detect(10,GPIO.RISING,callback=volumeDown, bouncetime=200)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=navigate, bouncetime=200)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=startMainMenu, bouncetime=200)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=startAssistant, bouncetime=200)
+  GPIO.add_event_detect(22,GPIO.RISING,callback=stopwatch, bouncetime=200)
+  GPIO.add_event_detect(24,GPIO.RISING,callback=metronome, bouncetime=200)
+  GPIO.add_event_detect(26,GPIO.RISING,callback=audiobook, bouncetime=200)
 
-def startTodoMenu():
-  GPIO.remove_event_detect(8)
+def startStopwatchMenu(t="t"):
+  GPIO.remove_event_detect(11)
   GPIO.remove_event_detect(10)
   GPIO.remove_event_detect(12)
   GPIO.remove_event_detect(16)
@@ -688,17 +750,36 @@ def startTodoMenu():
   GPIO.remove_event_detect(24)
   GPIO.remove_event_detect(26)
 
-  GPIO.add_event_detect(8,GPIO.RISING,callback=increase_selected)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=decrease_selected)
-  GPIO.add_event_detect(12,GPIO.RISING,callback=startNotesMenu)
-  GPIO.add_event_detect(16,GPIO.RISING,callback=startMainMenu)
-  GPIO.add_event_detect(18,GPIO.RISING,callback=read_all_todos)
-  GPIO.add_event_detect(22,GPIO.RISING,callback=delete_todo)
-  GPIO.add_event_detect(24,GPIO.RISING,callback=edit_selected)
-  GPIO.add_event_detect(26,GPIO.RISING,callback=create_todo_face)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=stopStopwatch, bouncetime=200)
+  GPIO.add_event_detect(10,GPIO.RISING,callback=startStopwatch, bouncetime=200)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=getStopwatchTime, bouncetime=200)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=pauseResumeStopwatch, bouncetime=200)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=volumeUp, bouncetime=200)
+  GPIO.add_event_detect(22,GPIO.RISING,callback=volumeDown, bouncetime=200)
+  GPIO.add_event_detect(24,GPIO.RISING,callback=test, bouncetime=200)
+  GPIO.add_event_detect(26,GPIO.RISING,callback=startMainMenu, bouncetime=200)
 
-def startMusicMenu():
-  GPIO.remove_event_detect(8)
+def startMetronomeMenu(t="t"):
+  GPIO.remove_event_detect(11)
+  GPIO.remove_event_detect(10)
+  GPIO.remove_event_detect(12)
+  GPIO.remove_event_detect(16)
+  GPIO.remove_event_detect(18)
+  GPIO.remove_event_detect(22)
+  GPIO.remove_event_detect(24)
+  GPIO.remove_event_detect(26)
+
+  GPIO.add_event_detect(11,GPIO.RISING,callback=shuffleMusic, bouncetime=200)
+  GPIO.add_event_detect(10,GPIO.RISING,callback=firstAid, bouncetime=200)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=playMusic, bouncetime=200)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=test, bouncetime=200)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=test, bouncetime=200)
+  GPIO.add_event_detect(22,GPIO.RISING,callback=test, bouncetime=200)
+  GPIO.add_event_detect(24,GPIO.RISING,callback=test, bouncetime=200)
+  GPIO.add_event_detect(26,GPIO.RISING,callback=test, bouncetime=200)
+
+def startAudiobookMenu(t="t"):
+  GPIO.remove_event_detect(11)
   GPIO.remove_event_detect(10)
   GPIO.remove_event_detect(12)
   GPIO.remove_event_detect(16)
@@ -709,7 +790,7 @@ def startMusicMenu():
 
 
 
-  GPIO.add_event_detect(8,GPIO.RISING,callback=shuffleMusic)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=shuffleMusic)
   GPIO.add_event_detect(10,GPIO.RISING,callback=firstAid)
   GPIO.add_event_detect(12,GPIO.RISING,callback=playMusic)
   GPIO.add_event_detect(16,GPIO.RISING,callback=stop)
@@ -718,8 +799,8 @@ def startMusicMenu():
   GPIO.add_event_detect(24,GPIO.RISING,callback=button_callback7)
   GPIO.add_event_detect(26,GPIO.RISING,callback=button_callback8)
 
-def startAssistantMenu():
-  GPIO.remove_event_detect(8)
+def startMapMenu(t="t"):
+  GPIO.remove_event_detect(11)
   GPIO.remove_event_detect(10)
   GPIO.remove_event_detect(12)
   GPIO.remove_event_detect(16)
@@ -730,49 +811,7 @@ def startAssistantMenu():
 
 
 
-  GPIO.add_event_detect(8,GPIO.RISING,callback=volumeUp)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=volumeDown)
-  GPIO.add_event_detect(12,GPIO.RISING,callback=navigate)
-  GPIO.add_event_detect(16,GPIO.RISING,callback=startMainMenu)
-  GPIO.add_event_detect(18,GPIO.RISING,callback=startAssistant)
-  GPIO.add_event_detect(22,GPIO.RISING,callback=stopwatch)
-  GPIO.add_event_detect(24,GPIO.RISING,callback=metronome)
-  GPIO.add_event_detect(26,GPIO.RISING,callback=audiobook)
-
-def startStopwatchMenu():
-  GPIO.remove_event_detect(8)
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(22)
-  GPIO.remove_event_detect(24)
-  GPIO.remove_event_detect(26)
-
-
-
-  GPIO.add_event_detect(8,GPIO.RISING,callback=stopStopwatch)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=startStopwatch)
-  GPIO.add_event_detect(12,GPIO.RISING,callback=getStopwatchTime)
-  GPIO.add_event_detect(16,GPIO.RISING,callback=pauseResumeStopwatch)
-  GPIO.add_event_detect(18,GPIO.RISING,callback=volumeUp)
-  GPIO.add_event_detect(22,GPIO.RISING,callback=volumeDown)
-  GPIO.add_event_detect(24,GPIO.RISING,callback=empty)
-  GPIO.add_event_detect(26,GPIO.RISING,callback=startMainMenu)
-
-def startMetronomeMenu():
-  GPIO.remove_event_detect(8)
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(22)
-  GPIO.remove_event_detect(24)
-  GPIO.remove_event_detect(26)
-
-
-
-  GPIO.add_event_detect(8,GPIO.RISING,callback=shuffleMusic)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=shuffleMusic)
   GPIO.add_event_detect(10,GPIO.RISING,callback=firstAid)
   GPIO.add_event_detect(12,GPIO.RISING,callback=playMusic)
   GPIO.add_event_detect(16,GPIO.RISING,callback=stop)
@@ -781,8 +820,8 @@ def startMetronomeMenu():
   GPIO.add_event_detect(24,GPIO.RISING,callback=button_callback7)
   GPIO.add_event_detect(26,GPIO.RISING,callback=button_callback8)
 
-def startAudiobookMenu():
-  GPIO.remove_event_detect(8)
+def startRemoteMenu(t="t"):
+  GPIO.remove_event_detect(11)
   GPIO.remove_event_detect(10)
   GPIO.remove_event_detect(12)
   GPIO.remove_event_detect(16)
@@ -793,49 +832,7 @@ def startAudiobookMenu():
 
 
 
-  GPIO.add_event_detect(8,GPIO.RISING,callback=shuffleMusic)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=firstAid)
-  GPIO.add_event_detect(12,GPIO.RISING,callback=playMusic)
-  GPIO.add_event_detect(16,GPIO.RISING,callback=stop)
-  GPIO.add_event_detect(18,GPIO.RISING,callback=button_callback5)
-  GPIO.add_event_detect(22,GPIO.RISING,callback=button_callback6)
-  GPIO.add_event_detect(24,GPIO.RISING,callback=button_callback7)
-  GPIO.add_event_detect(26,GPIO.RISING,callback=button_callback8)
-
-def startMapMenu():
-  GPIO.remove_event_detect(8)
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(22)
-  GPIO.remove_event_detect(24)
-  GPIO.remove_event_detect(26)
-
-
-
-  GPIO.add_event_detect(8,GPIO.RISING,callback=shuffleMusic)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=firstAid)
-  GPIO.add_event_detect(12,GPIO.RISING,callback=playMusic)
-  GPIO.add_event_detect(16,GPIO.RISING,callback=stop)
-  GPIO.add_event_detect(18,GPIO.RISING,callback=button_callback5)
-  GPIO.add_event_detect(22,GPIO.RISING,callback=button_callback6)
-  GPIO.add_event_detect(24,GPIO.RISING,callback=button_callback7)
-  GPIO.add_event_detect(26,GPIO.RISING,callback=button_callback8)
-
-def startRemoteMenu():
-  GPIO.remove_event_detect(8)
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(22)
-  GPIO.remove_event_detect(24)
-  GPIO.remove_event_detect(26)
-
-
-
-  GPIO.add_event_detect(8,GPIO.RISING,callback=remoteUp)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=remoteUp)
   GPIO.add_event_detect(10,GPIO.RISING,callback=remoteRight)
   GPIO.add_event_detect(12,GPIO.RISING,callback=remoteDown)
   GPIO.add_event_detect(16,GPIO.RISING,callback=remoteLeft)
@@ -859,7 +856,8 @@ while True:
   print(t, "correct, ", f, "not correct")
 """
 
-
+def test(t):
+  print("Thing done")
 
 def translate(inLan, toLan, sentence):
   print("translate")
@@ -869,7 +867,36 @@ speak("Pocket Assistant Ready!!")
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # Set pin 10 to be an input pin and set initial value to be pulled low (off)
+GPIO.add_event_detect(10,GPIO.RISING,callback=test, bouncetime=200) # Setup event on pin 10 rising edge
+
+GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.add_event_detect(11,GPIO.RISING,callback=test, bouncetime=200)
+
+GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.add_event_detect(12,GPIO.RISING,callback=test, bouncetime=200)
+
+GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.add_event_detect(13,GPIO.RISING,callback=test, bouncetime=200)
+
+GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
+GPIO.add_event_detect(15,GPIO.RISING,callback=test, bouncetime=200) 
+
+GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.add_event_detect(16,GPIO.RISING,callback=test, bouncetime=200)
+
+GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.add_event_detect(18,GPIO.RISING,callback=test, bouncetime=200)
+
+GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.add_event_detect(19,GPIO.RISING,callback=test, bouncetime=200)
+
+
+
+
+
 startMainMenu()
 while(True): input(">  ")
 
+#Each button calls its own function. When a new menu is called, a global function or class variable changes what happens in the button's function

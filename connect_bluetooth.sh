@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#If it connects, write either connected or failed to a file, the main.py then reads it
 amixer scontrols
 amixer sset 'Master' 50%
 
