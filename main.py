@@ -1,11 +1,12 @@
 print("Pocket Assistant Starting....")
 #Imports
 import datetime
-#import speech_recognition as sr
+import speech_recognition as sr
 #from TTS.api import TTS
-#from pydub import AudioSegment
-#from pydub.playback import play
-#import RPi.GPIO as GPIO
+from pydub import AudioSegment
+from pydub.playback import play
+import RPi.GPIO as GPIO
+from gpiozero import Button
 import os
 import pytz
 from base64 import b64encode, b64decode
@@ -52,10 +53,6 @@ nltk.download('wordnet')
 
 pygame.init()
 
-global mode
-
-mode="text" #Can = text, debug, or production
-
 
 def hashString(string):
     return (hashlib.sha256(string.encode()).hexdigest())
@@ -64,7 +61,8 @@ def speak(command):
   print("saying:", command)
   global old_command
   old_command = command
-  """
+  
+  '''
   filename = command.replace(" ", "")+".wav"
 
 
@@ -73,7 +71,8 @@ def speak(command):
   else:
     os.system("mimic3 --voice 'en_US/hifi-tts_low' --interactive '"+command+"' | aplay") 
     print("Say:  "+command)
-  """
+  '''
+  
 
 def sound(sound):
   if (sound=="interpretting"):
@@ -868,5 +867,9 @@ def translate(inLan, toLan, sentence):
 #startMainMenu()
 speak("Pocket Assistant Ready!!")
 
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+startMainMenu()
+while(True): input(">  ")
 
-#while(True): input(">  ")
