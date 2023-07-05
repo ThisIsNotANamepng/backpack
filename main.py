@@ -49,7 +49,6 @@ todoCursor, notesCursor=0, 0
 #r = sr.Recognizer()
 
 #mic = sr.Microphone()
-nltk.download('wordnet')
 
 pygame.init()
 
@@ -58,20 +57,24 @@ def hashString(string):
     return (hashlib.sha256(string.encode()).hexdigest())
 
 def speak(command):
+  command=command.lower()
   print("saying:", command)
   global old_command
   old_command = command
   
-  '''
+  
   filename = command.replace(" ", "")+".wav"
 
 
-  if filename in os.listdir("BackpackPhrases/en-US-Neural2-G/"):
-    os.system("mpg123 "+filename)
+  if filename in os.listdir("BackpackPhrases/"):
+    os.system("aplay BackpackPhrases/"+filename)
   else:
-    os.system("mimic3 --voice 'en_US/hifi-tts_low' --interactive '"+command+"' | aplay") 
+    os.system("aplay beep.wav")
+    print("mimic3 --voice 'en_US/hifi-tts_low' '"+command+"' > BackpackPhrases/"+filename) 
+    os.system("mimic3 --voice 'en_US/hifi-tts_low' '"+command+"' > BackpackPhrases/"+filename) 
+    os.system("aplay BackpackPhrases/"+filename)
     print("Say:  "+command)
-  '''
+  
   
 
 def sound(sound):
@@ -286,15 +289,11 @@ def firstAid(t="t"):
   
 def volumeUp(t="t"):
   os.system("amixer -D pulse sset Master 5%+")
-
-def volumeUp(vol):
-  os.system("amixer -D pulse sset Master "+vol+"%-")
+  os.system("aplay volume.wav")
 
 def volumeDown(t="t"):
   os.system("amixer -D pulse sset Master 5%-")
-
-def volumeDown(vol):
-  os.system("amixer -D pulse sset Master "+vol+"%+")
+  os.system("aplay volume.wav")
 
 def volume(t="t"):
   #Todo: Start with the existing volume
@@ -862,8 +861,6 @@ def test(t):
 def translate(inLan, toLan, sentence):
   print("translate")
 
-#startMainMenu()
-speak("Pocket Assistant Ready!!")
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
@@ -894,9 +891,19 @@ GPIO.add_event_detect(19,GPIO.RISING,callback=test, bouncetime=200)
 
 
 
-
-
+speak("Welcome. System ready.")
 startMainMenu()
-while(True): input(">  ")
+while(True): 
+  command=input(">  ").split()
+  if command!="":
+    if command[0]=="log":
+      print("Log")
+    elif command[0]=="stop":
+      print("Stop ASB")
+    elif command[0]=="shutdown":
+      print("Shutdown computer")
+    elif command[0]=="sound":
+      speak("Sound test")
+
 
 #Each button calls its own function. When a new menu is called, a global function or class variable changes what happens in the button's function
