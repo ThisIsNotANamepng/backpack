@@ -27,19 +27,35 @@ import hashlib
 from nltk.corpus import wordnet
 import nltk
 import time
+from pygame import mixer
+import threading
+import glob 
+import sounddevice as sd
+import soundfile as sf
 
 
+global stopwatchtime
+global musicDirectory
+global musicIndex
 global selected
+global timerminutes
 selected = 0
 
 global picked
 picked = 0
+
+global music_start_time
 
 global time_date_time
 time_date_time=time.time()
 
 
 print("Imports complete")
+
+current_pid = os.getpid()
+with open('pid.txt', 'w') as file:
+  file.write(str(current_pid))
+
 
 DB_PATH = "todos.db"
 conn = sqlite3.connect(DB_PATH)
@@ -48,8 +64,9 @@ global todoCursor
 global notesCursor
 todoCursor, notesCursor=0, 0
 
+#pygame.init()
+pygame.mixer.init()
 
-pygame.init()
 
 def hashString(string):
     return (hashlib.sha256(string.encode()).hexdigest())
@@ -64,14 +81,13 @@ def speak(command):
   filename = command.replace(" ", "")+".wav"
 
 
-  if filename in os.listdir("BackpackPhrases/"):
-    os.system("aplay BackpackPhrases/"+filename)
+  if filename in os.listdir("/home/pi/BackpackPhrases/"):
+    os.system("aplay -D hw:0 /home/pi/BackpackPhrases/"+filename)
   else:
     sound("interpretting")
-    print("mimic3 --voice 'en_US/hifi-tts_low' '"+command+"' > BackpackPhrases/"+filename) 
-    os.system("mimic3 --voice 'en_US/hifi-tts_low' '"+command+"' > BackpackPhrases/"+filename) 
-    os.system("aplay BackpackPhrases/"+filename)
-    print("Say:  "+command)
+    print("mimic3 --voice 'en_US/hifi-tts_low' '"+command+"' > /home/pi/BackpackPhrases/"+filename) 
+    os.system("mimic3 --voice 'en_US/hifi-tts_low' '"+command+"' > /home/pi/BackpackPhrases/"+filename) 
+    os.system("aplay -D hw:0 /home/pi/BackpackPhrases/"+filename)
   
 def sound(sound):
   if (sound=="interpretting"):
@@ -79,6 +95,9 @@ def sound(sound):
 
   elif sound=="volume":
     print("Volume test")
+
+  elif sound=="timerfinished":
+    os.system("aplay -D hw:0 /home/pi/BackpackPhrases/timerfinished.wav")
 
 def getVoice(starter=None):
   
@@ -144,20 +163,89 @@ def text2int(textnum, numwords={}):
 
     return result + current
 
-def stopwatch(t="t"):
+def startStopwatch(t="t"):
+  global stopwatchtime
+
   speak("Starting stopwatch")
-  sound("321beeps")
-  while True:
-    try:
-        start_time=time.time()
-        while True:
-            #speak(round(time.time()-start_time,0),'secs',end='\n')
-            time.sleep(1)
-    except KeyboardInterrupt:
-            print("Timer has stopped")
-            end_time=time.time()
-            speak("The time elapsed is "+str(round(end_time-start_time,2))+' seconds')
-            break
+  speak("three, two, one, go")
+
+  stopwatchtime=time.time()
+
+def readStopwatch(t="t"):
+  global stopwatchtime
+
+  remaining=time.time()-stopwatchtime
+  numminutes=remaining//60
+  minutes=str(remaining//60)
+  seconds=str(remaining%60)[:-13]
+
+  speak("Stopwatch at")
+  if (numminutes)<0.0000001:
+    speak(seconds+" seconds")
+  else:
+    speak(minutes+" minutes, "+seconds+" seconds")
+
+
+def stopStopwatch(t="t"):
+  global stopwatchtime
+
+  remaining=time.time()-stopwatchtime
+  numminutes=remaining//60
+  minutes=str(remaining//60)
+  seconds=str(remaining%60)[:-13]
+
+  if (numminutes)<0.0000001:
+    speak("Stopwatch finished at "+seconds+" seconds")
+  else:
+    speak("Stopwatch finished at "+minutes+" minutes, "+seconds+" seconds")
+
+
+def timerMinuteUp(t="t"):
+  global timerminutes
+  timerminutes+=1
+  speak(str(timerminutes))
+
+def timerMinuteDown(t="t"):
+  global timerminutes
+  timerminutes-=1
+  speak(str(timerminutes))
+
+def timerThread():
+  global timerminutes
+  time.sleep(timerminutes*60)
+  sound("timerfinished")
+  speak("Timer finished")
+  sound("timerfinished")
+
+def startTimer(t="t"):
+  global timerminutes
+  speak("Starting timer")
+  thread = threading.Thread(target=timerThread)
+  thread.start()
+  startMainMenu()
+
+def startTimerMenu(t="t"):
+  speak("Timer menu")
+  global timerminutes
+  timerminutes=0
+  speak("How many minutes do you want the timer to be?")
+  GPIO.remove_event_detect(10)
+  GPIO.remove_event_detect(11)
+  GPIO.remove_event_detect(12)
+  GPIO.remove_event_detect(13)
+  GPIO.remove_event_detect(15)
+  GPIO.remove_event_detect(16)
+  GPIO.remove_event_detect(18)
+  GPIO.remove_event_detect(19)
+
+  GPIO.add_event_detect(10,GPIO.RISING,callback=startTimer, bouncetime=500)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=timerMinuteUp, bouncetime=500)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=timerMinuteDown, bouncetime=500)
+  GPIO.add_event_detect(13,GPIO.RISING,callback=none, bouncetime=500)
+  GPIO.add_event_detect(15,GPIO.RISING,callback=volumeUp, bouncetime=500)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=volumeDown, bouncetime=500)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=none, bouncetime=500)
+  GPIO.add_event_detect(19,GPIO.RISING,callback=startMainMenu, bouncetime=500)
 
 def takeNote(t="t"):
   speak("Taking a note")
@@ -199,46 +287,111 @@ def record(t="t"):
   #sudo apt-get install sound-recorder
   os.system("sound-recorder -c 2 -b 16 -P -S 20:00 recording.wav")
 
+
+def play_audio(file_path):
+    pygame.mixer.music.load(file_path)
+    pygame.mixer.music.play()
+
+def pause_audio():
+    pygame.mixer.music.pause()
+
+def unpause_audio():
+    pygame.mixer.music.unpause()
+
+def skip_audio():
+    pygame.mixer.music.stop()
+
+def play_music():
+  global musicDirectory
+  global musicIndex
+
+  song="/home/pi/Music/"+musicDirectory[musicIndex]
+  pygame.mixer.music.load(song)
+  pygame.mixer.music.play()
+
+
+def playpause(t="t"):
+  if pygame.mixer.music.get_busy():
+    pause_audio()
+  else:
+    unpause_audio()
+
 def shuffleMusic(t="t"):
-  #phrase("Shuffling music")
-  music_dir="/home/jack/Music/test/"
-  music_list = os.listdir(music_dir)
-  for i in music_list:
-    os.system("mv "+music_dir+i+" "+music_dir+i[-(len(i)-4):])
-  music_list = os.listdir(music_dir)
-  for i in music_list:
+  global musicDirectory
+  global musicIndex
+
+  speak("Shuffling music")
+  music_dir="/home/pi/Music"
+  music_list = os.listdir("/home/pi/Music")
+
+  for i in music_list: # Removes first four (additional) letters
+    os.system("mv '"+music_dir+"/"+i+"' '"+music_dir+"/"+i[-(len(i)-4):]+"'")
+
+  musicDirectory = os.listdir("/home/pi/Music")
+
+  for i in musicDirectory: # Adds three random letters and a dash
     addLet = (random.choice(string.ascii_letters)+random.choice(string.ascii_letters)+random.choice(string.ascii_letters)+"-")
-    os.system("mv "+music_dir+i+" "+music_dir+addLet+i)
+    os.system("mv '"+music_dir+"/"+i+"' '"+music_dir+"/"+addLet+i+"'")
+  musicDirectory = os.listdir("/home/pi/Music")
+
 
 def playMusic(t="t"):
-  speak("Playing music")
-  shuffleMusic()
+  global music_start_time
 
-  music_dir="/home/jack/Music/test/"
-  music_list = os.listdir(music_dir)
+  if pygame.mixer.music.get_busy() and time.time()-music_start_time>5:
+    stopMusic()
+  else:
+    global musicDirectory
+    global musicIndex
+    music_start_time=time.time()
+    musicIndex=0
 
-  i=0
+    speak("Playing music")
+    shuffleMusic()
 
-  while i<len(music_list):#Set buttons to do functons
-    pygame.mixer.music.load(music_dir+music_list[i])
-    pygame.mixer.music.play()
-    #pygame.mixer.music.pause()
-    i+=1
+    musicDirectory = glob.glob('/home/pi/Music/*.mp3')
+
+    if not musicDirectory:
+      print("No audio files found in the specified directory.")
+      pygame.quit()
+      return
+
+    play_audio(musicDirectory[musicIndex])
+
+
 
 def pauseMusic(t="t"):
-  speak("pause music")
+  pygame.mixer.music.pause()
+  speak("Music paused")
 
 def stopMusic(t="t"):
-  speak("stop playing music")
+  global musicDirectory
+  global musicIndex
+
+  pygame.mixer.music.stop()
+  speak("Music stopped")
+  startMainMenu()
 
 def skipMusic(t="t"):
-  speak("skip this song music")
+  global musicDirectory
+  global musicIndex
+
+  skip_audio()
+  musicIndex = (musicIndex + 1) % len(musicDirectory)
+  play_audio(musicDirectory[musicIndex])
 
 def backwordsMusic(t="t"):
-  speak("go back music")
+  global musicDirectory
+  global musicIndex
+  musicIndex-=1
+  skip_audio()
+  play_audio(musicDirectory[musicIndex])
+
+
+
 
 def connectBluetooth(t="t"):
-  os.system("./connect_bluetooth")
+  os.system("./connect_bluetooth.sh")
 
 def getDate(t="t"):
   today = datetime.datetime.now()
@@ -403,15 +556,6 @@ def navigate(t="t"):
 
 def empty(t="t"):
   pass
-
-def stopStopwatch(t="t"):
-  say("Stop the stopwatch")
-
-def startStopwatch(t="t"):
-  say("Start stopwatch")
-
-def getStopwatchTime(t="t"):
-  say("Get the stopwatch time")
 
 def pauseResumeStopwatch(t="t"):
   say("Toggle puase of stopwatch")
@@ -949,7 +1093,9 @@ def edit_picked(t="t"):
 def connectToWifi(t="t"):
   print("Connect to wifi")
 
-def startMainMenu(t="t"):
+def startMainMenu(fresh="False", t="t"):
+  if fresh=="False":
+    speak("Main menu")
   GPIO.remove_event_detect(10)
   GPIO.remove_event_detect(11)
   GPIO.remove_event_detect(12)
@@ -959,7 +1105,7 @@ def startMainMenu(t="t"):
   GPIO.remove_event_detect(18)
   GPIO.remove_event_detect(19)
 
-  GPIO.add_event_detect(10,GPIO.RISING,callback=shuffleMusic, bouncetime=500)
+  GPIO.add_event_detect(10,GPIO.RISING,callback=startMusicMenu, bouncetime=500)
   GPIO.add_event_detect(11,GPIO.RISING,callback=read_all_todos, bouncetime=500)
   GPIO.add_event_detect(12,GPIO.RISING,callback=firstAid, bouncetime=500)
   GPIO.add_event_detect(13,GPIO.RISING,callback=getTime, bouncetime=500)
@@ -1008,27 +1154,27 @@ def startTodoMenu(t="t"):
   GPIO.add_event_detect(26,GPIO.RISING,callback=create_todo_face, bouncetime=500)
 
 def startMusicMenu(t="t"):
-  GPIO.remove_event_detect(11)
+  speak("Music menu")
   GPIO.remove_event_detect(10)
+  GPIO.remove_event_detect(11)
   GPIO.remove_event_detect(12)
+  GPIO.remove_event_detect(13)
+  GPIO.remove_event_detect(15)
   GPIO.remove_event_detect(16)
   GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(22)
-  GPIO.remove_event_detect(24)
-  GPIO.remove_event_detect(26)
+  GPIO.remove_event_detect(19)
 
-
-
-  GPIO.add_event_detect(11,GPIO.RISING,callback=shuffleMusic, bouncetime=500)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=firstAid, bouncetime=500)
-  GPIO.add_event_detect(12,GPIO.RISING,callback=playMusic, bouncetime=500)
-  GPIO.add_event_detect(16,GPIO.RISING,callback=test)
-  GPIO.add_event_detect(18,GPIO.RISING,callback=test)
-  GPIO.add_event_detect(22,GPIO.RISING,callback=test)
-  GPIO.add_event_detect(24,GPIO.RISING,callback=test)
-  GPIO.add_event_detect(26,GPIO.RISING,callback=test)
+  GPIO.add_event_detect(10,GPIO.RISING,callback=playpause, bouncetime=500)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=skipMusic, bouncetime=500)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=backwordsMusic, bouncetime=500)
+  GPIO.add_event_detect(13,GPIO.RISING,callback=playMusic, bouncetime=500)
+  GPIO.add_event_detect(15,GPIO.RISING,callback=volumeUp, bouncetime=500)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=volumeDown, bouncetime=500)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=shuffleMusic, bouncetime=500)
+  GPIO.add_event_detect(19,GPIO.RISING,callback=startMainMenu, bouncetime=500)
 
 def startAssistantMenu(t="t"):
+  speak("Assistant menu")
   GPIO.remove_event_detect(10)
   GPIO.remove_event_detect(11)
   GPIO.remove_event_detect(12)
@@ -1048,23 +1194,25 @@ def startAssistantMenu(t="t"):
   GPIO.add_event_detect(19,GPIO.RISING,callback=startMainMenu, bouncetime=500)
 
 def startStopwatchMenu(t="t"):
-  GPIO.remove_event_detect(11)
+  # In the future: Add pause/play
+  speak("Stopwatch menu")
   GPIO.remove_event_detect(10)
+  GPIO.remove_event_detect(11)
   GPIO.remove_event_detect(12)
+  GPIO.remove_event_detect(13)
+  GPIO.remove_event_detect(15)
   GPIO.remove_event_detect(16)
   GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(22)
-  GPIO.remove_event_detect(24)
-  GPIO.remove_event_detect(26)
+  GPIO.remove_event_detect(19)
 
-  GPIO.add_event_detect(11,GPIO.RISING,callback=stopStopwatch, bouncetime=500)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=startStopwatch, bouncetime=500)
-  GPIO.add_event_detect(12,GPIO.RISING,callback=getStopwatchTime, bouncetime=500)
-  GPIO.add_event_detect(16,GPIO.RISING,callback=pauseResumeStopwatch, bouncetime=500)
-  GPIO.add_event_detect(18,GPIO.RISING,callback=volumeUp, bouncetime=500)
-  GPIO.add_event_detect(22,GPIO.RISING,callback=volumeDown, bouncetime=500)
-  GPIO.add_event_detect(24,GPIO.RISING,callback=test, bouncetime=500)
-  GPIO.add_event_detect(26,GPIO.RISING,callback=startMainMenu, bouncetime=500)
+  GPIO.add_event_detect(10,GPIO.RISING,callback=stopStopwatch, bouncetime=500)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=startStopwatch, bouncetime=500)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=readStopwatch, bouncetime=500)
+  GPIO.add_event_detect(13,GPIO.RISING,callback=none, bouncetime=500)
+  GPIO.add_event_detect(15,GPIO.RISING,callback=volumeUp, bouncetime=500)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=volumeDown, bouncetime=500)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=none, bouncetime=500)
+  GPIO.add_event_detect(19,GPIO.RISING,callback=startMainMenu, bouncetime=500)
 
 def startMetronomeMenu(t="t"):
   GPIO.remove_event_detect(11)
@@ -1151,8 +1299,7 @@ def startRemoteMenu(t="t"):
 def startNavigationMenu(t="t"):
   print("A menu for naviagting maps. Might use cloud maps. When reading a map, save it to a file")
 
-def startTimerMenu(t="t"):
-  print("A menu for creating timers")
+
 
 
 """
@@ -1207,7 +1354,7 @@ GPIO.add_event_detect(19,GPIO.RISING,callback=test, bouncetime=500)
 
 
 speak("Welcome. System ready.")
-startMainMenu()
+startMainMenu("True")
 while(True): 
   command=input(">  ").split()
   if command!="":

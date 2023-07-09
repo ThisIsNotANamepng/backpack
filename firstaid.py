@@ -1,9 +1,17 @@
-def speak(text):
-    print(text)
-def speak(text):
-    print(text)
-def getVoice():
-    return(input("Input voice: "))
+
+def none(t="t"):
+    print("Button pressed")
+    pass
+
+def markyes(t="t"):
+    print("Marked yes")
+    global yes_no
+    yes_no=True
+
+def markno(t="t"):
+    speak("Marked no")
+    global yes_no
+    yes_no=False
 
 def noo():
     speak("Call nine one one.")
@@ -216,7 +224,8 @@ def diagnose():
 
 def causeKnown():
     speak("What is the cause?")
-    cause = getVoice()
+
+    input("Looking for cause, which is known")
 
     if "heart attack" in cause:
         heartAttack()
@@ -256,42 +265,53 @@ def causeKnown():
         sprain()
     elif "head" in cause:
         headTrauma()
-    elif "overdose" in cause or "overdosed" in cause:
+    elif "overdose" in cause or "overdosed" in cause or "over" and "dose" in cause:
         overdose()
 
 
-def start(again):
-    if again==True:
-        speak("I didn't understand, what did you say?")
-    elif again==False:
-        speak("Ensure the scene is safe and call nine one one")
+def startFirstAid(again):
+
+    # The buttons do yes/no and scroll through conditions if the conditions is known
+    GPIO.remove_event_detect(10)
+    GPIO.remove_event_detect(11)
+    GPIO.remove_event_detect(12)
+    GPIO.remove_event_detect(13)
+    GPIO.remove_event_detect(15)
+    GPIO.remove_event_detect(16)
+    GPIO.remove_event_detect(18)
+    GPIO.remove_event_detect(19)
+
+    GPIO.add_event_detect(10,GPIO.RISING,callback=markyes, bouncetime=500)
+    GPIO.add_event_detect(11,GPIO.RISING,callback=markno, bouncetime=500)
+    GPIO.add_event_detect(12,GPIO.RISING,callback=none, bouncetime=500)
+    GPIO.add_event_detect(13,GPIO.RISING,callback=none, bouncetime=500)
+    GPIO.add_event_detect(15,GPIO.RISING,callback=volumeUp, bouncetime=500)
+    GPIO.add_event_detect(16,GPIO.RISING,callback=volumeDown, bouncetime=500)
+    GPIO.add_event_detect(18,GPIO.RISING,callback=none, bouncetime=500)
+    GPIO.add_event_detect(19,GPIO.RISING,callback=none, bouncetime=500)
+
+
+
     speak("Do you know what the problem is?")
-    boo = getVoice()
 
-    if "yes" in boo:
-        causeKnown()
-    elif "no" in boo:
-        diagnose()
+    i=0
+    while i<600:
+        if yes_no!="":
+            if yes_no==True:
+                causeKnown()
+                break
+
+            elif yes_no==False:
+                diagnose()
+                break
+        i+=1
+        time.sleep(0.1)
+    if i==599:
+        #Never responded, go back to main menu
+        print("Done")
     else:
-        start(True)
+        print("Got an answer")
+        print("yes_no:", yes_no)
+    yes_no=""
 
 
-
-#start(False)
-
-
-
-
-#causeKnown()
-
-
-
-
-
-
-
-
-
-"""
-Add option for button to say yes or no
-"""
