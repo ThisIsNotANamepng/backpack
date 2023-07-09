@@ -39,6 +39,9 @@ global musicDirectory
 global musicIndex
 global selected
 global timerminutes
+global metronomebpm
+global metronomesound
+global stop_event
 selected = 0
 
 global picked
@@ -72,7 +75,7 @@ def hashString(string):
     return (hashlib.sha256(string.encode()).hexdigest())
 
 def speak(command):
-  command=command.lower()
+  command=str(command).lower()
   print("saying:", command)
   global old_command
   old_command = command
@@ -458,35 +461,73 @@ def volume(t="t"):
     os.system("amixer sset 'Master' "+str(volume)+"%")
     sound("volume")
 
-def timer(txt): #Want to make it run in the background
-  x = txt.split()
-  try:
-      mindex = x.index("minutes")
-      minutes=x[mindex-1]
-      minutes = (text2int(minutes))
-  except:
-      minutes=0
-  try:
-      sindex = x.index("seconds")
-      seconds=x[sindex-1]
-      if sindex==-1:
-          sindex=x.index("second")
-          seconds=x[sindex-1]
-          if sindex==-1:
-              seconds=0
-      seconds = (text2int(seconds))
-  except:
-      seconds=0
-  tim=minutes*60+seconds
-  log("Setting timer for "+str(tim)+" seconds")
-  time.sleep(tim)
 
-def metronome(bpm):#Add way for button to stop it, also use buttons to increase/decrease bpm
-  pygame.mixer.music.load("beep.mp3")
 
-  while True:#Need buttonInterrupt, stop the loop and start is again
+
+
+
+
+
+def changeMetronome(t="t"):
+  print("Scroll through sound list")
+  sounds=["met-woodblock", "met-clap", "met-thud", "med-beep", "met-bell"]
+  current=sounds.index(metronomesound)
+  if current==len(sounds)-1:
+    metronomesound="met-clap"
+  else:
+    metronomesound=sounds[current]
+  pygame.mixer.music.load("/home/pi/BackpackPhrases/"+metronomesound)
+
+def bpmUpOne(t="t"):
+  global metronomebpm
+  metronomebpm+=1
+  speak(metronomebpm)
+
+def bpmUpFive(t="t"):
+  global metronomebpm
+  metronomebpm+=5
+  speak(metronomebpm)
+
+def bpmDownOne(t="t"):
+  global metronomebpm
+  metronomebpm-=1
+  speak(metronomebpm)
+
+def bpmDownFive(t="t"):
+  global metronomebpm
+  metronomebpm-=5
+  speak(metronomebpm)
+
+def metronome_threader():
+  while not stop_event.is_set():
     pygame.mixer.music.play()
-    time.sleep(60/bpm)
+    time.sleep(60 / metronomebpm)
+
+def stopMetronome():
+  stop_event.set()
+  startMainMenu()
+
+def startMetronome():
+  global stop_event
+  global metronomebpm
+  metronomebpm=60
+  speak("Starting metronome")
+
+  stop_event = threading.Event()
+  pygame.mixer.music.load("/home/pi/BackpackPhrases/met-woodblock.wav")
+
+  metronome_thread = threading.Thread(target=metronome_threader)
+  metronome_thread.start()
+
+
+
+
+
+
+
+
+
+
     
 def say(thing):
   speak(thing)
@@ -896,9 +937,6 @@ def startFirstAid(again):
     print("yes_no:", yes_no)
   yes_no=""
 
-
-
-
 def generate_todo_id(title, t="t"):
   hash_str = str(time.time()) + title
   hash_obj = hashlib.sha256(hash_str.encode())
@@ -1215,23 +1253,25 @@ def startStopwatchMenu(t="t"):
   GPIO.add_event_detect(19,GPIO.RISING,callback=startMainMenu, bouncetime=500)
 
 def startMetronomeMenu(t="t"):
-  GPIO.remove_event_detect(11)
+  speak("Metronome menu")
   GPIO.remove_event_detect(10)
+  GPIO.remove_event_detect(11)
   GPIO.remove_event_detect(12)
+  GPIO.remove_event_detect(13)
+  GPIO.remove_event_detect(15)
   GPIO.remove_event_detect(16)
   GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(22)
-  GPIO.remove_event_detect(24)
-  GPIO.remove_event_detect(26)
+  GPIO.remove_event_detect(19)
 
-  GPIO.add_event_detect(11,GPIO.RISING,callback=shuffleMusic, bouncetime=500)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=firstAid, bouncetime=500)
-  GPIO.add_event_detect(12,GPIO.RISING,callback=playMusic, bouncetime=500)
-  GPIO.add_event_detect(16,GPIO.RISING,callback=test, bouncetime=500)
-  GPIO.add_event_detect(18,GPIO.RISING,callback=test, bouncetime=500)
-  GPIO.add_event_detect(22,GPIO.RISING,callback=test, bouncetime=500)
-  GPIO.add_event_detect(24,GPIO.RISING,callback=test, bouncetime=500)
-  GPIO.add_event_detect(26,GPIO.RISING,callback=test, bouncetime=500)
+  GPIO.add_event_detect(10,GPIO.RISING,callback=bpmUpOne, bouncetime=500)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=bpmUpFive, bouncetime=500)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=bpmDownOne, bouncetime=500)
+  GPIO.add_event_detect(13,GPIO.RISING,callback=bpmDownFive, bouncetime=500)
+  GPIO.add_event_detect(15,GPIO.RISING,callback=volumeUp, bouncetime=500)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=volumeDown, bouncetime=500)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=changeMetronome, bouncetime=500)
+  GPIO.add_event_detect(19,GPIO.RISING,callback=stopMetronome, bouncetime=500)
+  startMetronome()
 
 def startAudiobookMenu(t="t"):
   GPIO.remove_event_detect(11)
