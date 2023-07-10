@@ -469,14 +469,15 @@ def volume(t="t"):
 
 
 def changeMetronome(t="t"):
-  print("Scroll through sound list")
-  sounds=["met-woodblock", "met-clap", "met-thud", "med-beep", "met-bell"]
+  global metronomesound
+  sounds=["met-woodblock", "met-clap", "met-beep", "met-bell"]
   current=sounds.index(metronomesound)
   if current==len(sounds)-1:
-    metronomesound="met-clap"
+    metronomesound="met-woodblock"
   else:
-    metronomesound=sounds[current]
-  pygame.mixer.music.load("/home/pi/BackpackPhrases/"+metronomesound)
+    metronomesound=sounds[current+1]
+  pygame.mixer.music.stop()
+  pygame.mixer.music.load("/home/pi/BackpackPhrases/"+metronomesound+".wav")
 
 def bpmUpOne(t="t"):
   global metronomebpm
@@ -503,13 +504,15 @@ def metronome_threader():
     pygame.mixer.music.play()
     time.sleep(60 / metronomebpm)
 
-def stopMetronome():
+def stopMetronome(t="t"):
   stop_event.set()
   startMainMenu()
 
 def startMetronome():
   global stop_event
   global metronomebpm
+  global metronomesound
+  metronomesound="met-woodblock"
   metronomebpm=60
   speak("Starting metronome")
 
