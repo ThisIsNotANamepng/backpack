@@ -42,6 +42,7 @@ global timerminutes
 global metronomebpm
 global metronomesound
 global stop_event
+global recording_minutes
 selected = 0
 
 global picked
@@ -285,11 +286,62 @@ def takeNote(t="t"):
     f.close()
     speak("Note written")
 
-def record(t="t"):
-  speak("Starting twenty minute recording.")
-  #sudo apt-get install sound-recorder
-  os.system("sound-recorder -c 2 -b 16 -P -S 20:00 recording.wav")
+def threadRecording(t="t"):
+  global recording_minutes
+  os.system("arecord --duration="+str(recording_minutes)+" /home/pi/recordings/"+str(time.time())+".wav")
 
+def record(t="t"):
+  global recording_minutes
+  speak("Recording for")
+  speak(recording_minutes)
+  speak("minutes")
+  recordingThread = threading.Thread(target=threadRecording)
+  recordingThread.start()
+  startMainMenu()
+
+def recordingMinutesUpOne(t="t"):
+  global recording_minutes
+  recording_minutes+=1
+  speak(recording_minutes)
+
+def recordingMinutesUpFive(t="t"):
+  global recording_minutes
+  recording_minutes+=5
+  speak(recording_minutes)
+
+def recordingMinutesDownOne(t="t"):
+  global recording_minutes
+  recording_minutes-=1
+  speak(recording_minutes)
+
+def recordingMinutesDownFive(t="t"):
+  global recording_minutes
+  recording_minutes-=5
+  speak(recording_minutes)
+
+
+def startRecordingMenu(t="t"):
+  speak("Recording Menu")
+  global recording_minutes
+  recording_minutes=0
+
+  GPIO.remove_event_detect(10)
+  GPIO.remove_event_detect(11)
+  GPIO.remove_event_detect(12)
+  GPIO.remove_event_detect(13)
+  GPIO.remove_event_detect(15)
+  GPIO.remove_event_detect(16)
+  GPIO.remove_event_detect(18)
+  GPIO.remove_event_detect(19)
+
+  GPIO.add_event_detect(10,GPIO.RISING,callback=recordingMinutesUpOne, bouncetime=500)
+  GPIO.add_event_detect(11,GPIO.RISING,callback=recordingMinutesUpFive, bouncetime=500)
+  GPIO.add_event_detect(12,GPIO.RISING,callback=recordingMinutesDownOne, bouncetime=500)
+  GPIO.add_event_detect(13,GPIO.RISING,callback=recordingMinutesDownFive, bouncetime=500)
+  GPIO.add_event_detect(15,GPIO.RISING,callback=record, bouncetime=500)
+  GPIO.add_event_detect(16,GPIO.RISING,callback=none, bouncetime=500)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=none, bouncetime=500)
+  GPIO.add_event_detect(19,GPIO.RISING,callback=startMainMenu, bouncetime=500)
 
 def play_audio(file_path):
     pygame.mixer.music.load(file_path)
@@ -311,7 +363,6 @@ def play_music():
   song="/home/pi/Music/"+musicDirectory[musicIndex]
   pygame.mixer.music.load(song)
   pygame.mixer.music.play()
-
 
 def playpause(t="t"):
   if pygame.mixer.music.get_busy():
@@ -361,8 +412,6 @@ def playMusic(t="t"):
 
     play_audio(musicDirectory[musicIndex])
 
-
-
 def pauseMusic(t="t"):
   pygame.mixer.music.pause()
   speak("Music paused")
@@ -389,9 +438,6 @@ def backwordsMusic(t="t"):
   musicIndex-=1
   skip_audio()
   play_audio(musicDirectory[musicIndex])
-
-
-
 
 def connectBluetooth(t="t"):
   os.system("./connect_bluetooth.sh")
@@ -421,7 +467,6 @@ def repeatStatement():
   speak(old_command)
 
 def readEbook(t="t"):
-  log("Started reading book")
   speak("Have a library of ebooks for reading offline")
 
 def CPRBeat():#Need a way to use button to stop met
@@ -460,13 +505,6 @@ def volume(t="t"):
     os.system("amixer sset -M 'Master' "+str(volume)+"%")
     os.system("amixer sset 'Master' "+str(volume)+"%")
     sound("volume")
-
-
-
-
-
-
-
 
 def changeMetronome(t="t"):
   global metronomesound
@@ -522,16 +560,6 @@ def startMetronome():
   metronome_thread = threading.Thread(target=metronome_threader)
   metronome_thread.start()
 
-
-
-
-
-
-
-
-
-
-    
 def say(thing):
   speak(thing)
 
@@ -1231,7 +1259,7 @@ def startAssistantMenu(t="t"):
   GPIO.add_event_detect(13,GPIO.RISING,callback=startAudiobookMenu, bouncetime=500)
   GPIO.add_event_detect(15,GPIO.RISING,callback=connectToWifi, bouncetime=500)
   GPIO.add_event_detect(16,GPIO.RISING,callback=startTimerMenu, bouncetime=500)
-  GPIO.add_event_detect(18,GPIO.RISING,callback=startNavigationMenu, bouncetime=500)
+  GPIO.add_event_detect(18,GPIO.RISING,callback=startRecordingMenu, bouncetime=500)
   GPIO.add_event_detect(19,GPIO.RISING,callback=startMainMenu, bouncetime=500)
 
 def startStopwatchMenu(t="t"):
