@@ -281,7 +281,7 @@ def startFirstAid(again):
     GPIO.remove_event_detect(18)
     GPIO.remove_event_detect(19)
 
-    GPIO.add_event_detect(10,GPIO.RISING,callback=markyes, bouncetime=500)
+    GPIO.add_event_detect(21,GPIO.RISING,callback=markyes, bouncetime=500)
     GPIO.add_event_detect(11,GPIO.RISING,callback=markno, bouncetime=500)
     GPIO.add_event_detect(12,GPIO.RISING,callback=none, bouncetime=500)
     GPIO.add_event_detect(13,GPIO.RISING,callback=none, bouncetime=500)

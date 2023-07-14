@@ -136,6 +136,16 @@ def spell(t="t"):
   word = getVoice()
   for i in word:
     speak(i)
+  
+def removeGPIO():
+  GPIO.remove_event_detect(21)
+  GPIO.remove_event_detect(11)
+  GPIO.remove_event_detect(12)
+  GPIO.remove_event_detect(13)
+  GPIO.remove_event_detect(15)
+  GPIO.remove_event_detect(16)
+  GPIO.remove_event_detect(18)
+  GPIO.remove_event_detect(19)
 
 def text2int(textnum, numwords={}):
     if not numwords:
@@ -233,16 +243,9 @@ def startTimerMenu(t="t"):
   global timerminutes
   timerminutes=0
   speak("How many minutes do you want the timer to be?")
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(11)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(13)
-  GPIO.remove_event_detect(15)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(19)
+  removeGPIO()
 
-  GPIO.add_event_detect(10,GPIO.RISING,callback=startTimer, bouncetime=500)
+  GPIO.add_event_detect(21,GPIO.RISING,callback=startTimer, bouncetime=500)
   GPIO.add_event_detect(11,GPIO.RISING,callback=timerMinuteUp, bouncetime=500)
   GPIO.add_event_detect(12,GPIO.RISING,callback=timerMinuteDown, bouncetime=500)
   GPIO.add_event_detect(13,GPIO.RISING,callback=none, bouncetime=500)
@@ -325,16 +328,9 @@ def startRecordingMenu(t="t"):
   global recording_minutes
   recording_minutes=0
 
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(11)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(13)
-  GPIO.remove_event_detect(15)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(19)
+  removeGPIO()
 
-  GPIO.add_event_detect(10,GPIO.RISING,callback=recordingMinutesUpOne, bouncetime=500)
+  GPIO.add_event_detect(21,GPIO.RISING,callback=recordingMinutesUpOne, bouncetime=500)
   GPIO.add_event_detect(11,GPIO.RISING,callback=recordingMinutesUpFive, bouncetime=500)
   GPIO.add_event_detect(12,GPIO.RISING,callback=recordingMinutesDownOne, bouncetime=500)
   GPIO.add_event_detect(13,GPIO.RISING,callback=recordingMinutesDownFive, bouncetime=500)
@@ -485,26 +481,6 @@ def volumeUp(t="t"):
 def volumeDown(t="t"):
   os.system("amixer -D pulse sset Master 5%-")
   os.system("aplay volume.wav")
-
-def volume(t="t"):
-  #Todo: Start with the existing volume
-  speak("Adjusting volume")
-  volume = 50
-
-  while True: #Neet button input - Button1 = volume up, Button2 = volume down, Button 3 stops volume adjusting 
-    p = input("Up/Down")
-    com = "amixer sset 'Master' 50%"
-    Hcom = "amixer sset -M 'Master' 50%"
-    if p=="up":
-      volume+=5
-    elif p=="down":
-      volume-=5
-    else: 
-      sound(volume)
-      break
-    os.system("amixer sset -M 'Master' "+str(volume)+"%")
-    os.system("amixer sset 'Master' "+str(volume)+"%")
-    sound("volume")
 
 def changeMetronome(t="t"):
   global metronomesound
@@ -872,7 +848,6 @@ def overdose():
   speak("Roll the victim on their side and keep the airway open to prevent choking.")
   speak("Monitor the victim and give see pee are if necessary.")
 
-
 def diagnose():
   speak("Diagnose")
 
@@ -926,16 +901,10 @@ def causeKnown():
 def startFirstAid(again):
 
   # The buttons do yes/no and scroll through conditions if the conditions is known
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(11)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(13)
-  GPIO.remove_event_detect(15)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(19)
+  removeGPIO()
 
-  GPIO.add_event_detect(10,GPIO.RISING,callback=markyes, bouncetime=500)
+
+  GPIO.add_event_detect(21,GPIO.RISING,callback=markyes, bouncetime=500)
   GPIO.add_event_detect(11,GPIO.RISING,callback=markno, bouncetime=500)
   GPIO.add_event_detect(12,GPIO.RISING,callback=none, bouncetime=500)
   GPIO.add_event_detect(13,GPIO.RISING,callback=none, bouncetime=500)
@@ -1165,16 +1134,10 @@ def connectToWifi(t="t"):
 def startMainMenu(fresh="False", t="t"):
   if fresh=="False":
     speak("Main menu")
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(11)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(13)
-  GPIO.remove_event_detect(15)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(19)
 
-  GPIO.add_event_detect(10,GPIO.RISING,callback=startMusicMenu, bouncetime=500)
+  removeGPIO()
+
+  GPIO.add_event_detect(21,GPIO.RISING,callback=startMusicMenu, bouncetime=500)
   GPIO.add_event_detect(11,GPIO.RISING,callback=read_all_todos, bouncetime=500)
   GPIO.add_event_detect(12,GPIO.RISING,callback=firstAid, bouncetime=500)
   GPIO.add_event_detect(13,GPIO.RISING,callback=getTime, bouncetime=500)
@@ -1195,7 +1158,7 @@ def startNotesMenu(t="t"):
   GPIO.remove_event_detect(26)
 
   GPIO.add_event_detect(11,GPIO.RISING,callback=increase_picked, bouncetime=500)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=decrease_picked, bouncetime=500)
+  GPIO.add_event_detect(21,GPIO.RISING,callback=decrease_picked, bouncetime=500)
   GPIO.add_event_detect(12,GPIO.RISING,callback=startTodoMenu, bouncetime=500)
   GPIO.add_event_detect(16,GPIO.RISING,callback=startMainMenu, bouncetime=500)
   GPIO.add_event_detect(18,GPIO.RISING,callback=read_all_notes, bouncetime=500)
@@ -1214,7 +1177,7 @@ def startTodoMenu(t="t"):
   GPIO.remove_event_detect(26)
 
   GPIO.add_event_detect(11,GPIO.RISING,callback=increase_selected, bouncetime=500)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=decrease_selected, bouncetime=500)
+  GPIO.add_event_detect(21,GPIO.RISING,callback=decrease_selected, bouncetime=500)
   GPIO.add_event_detect(12,GPIO.RISING,callback=startNotesMenu, bouncetime=500)
   GPIO.add_event_detect(16,GPIO.RISING,callback=startMainMenu, bouncetime=500)
   GPIO.add_event_detect(18,GPIO.RISING,callback=read_all_todos, bouncetime=500)
@@ -1224,16 +1187,9 @@ def startTodoMenu(t="t"):
 
 def startMusicMenu(t="t"):
   speak("Music menu")
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(11)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(13)
-  GPIO.remove_event_detect(15)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(19)
+  removeGPIO()
 
-  GPIO.add_event_detect(10,GPIO.RISING,callback=playpause, bouncetime=500)
+  GPIO.add_event_detect(21,GPIO.RISING,callback=playpause, bouncetime=500)
   GPIO.add_event_detect(11,GPIO.RISING,callback=skipMusic, bouncetime=500)
   GPIO.add_event_detect(12,GPIO.RISING,callback=backwordsMusic, bouncetime=500)
   GPIO.add_event_detect(13,GPIO.RISING,callback=playMusic, bouncetime=500)
@@ -1244,16 +1200,9 @@ def startMusicMenu(t="t"):
 
 def startAssistantMenu(t="t"):
   speak("Assistant menu")
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(11)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(13)
-  GPIO.remove_event_detect(15)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(19)
+  removeGPIO()
 
-  GPIO.add_event_detect(10,GPIO.RISING,callback=startAssistant, bouncetime=500)
+  GPIO.add_event_detect(21,GPIO.RISING,callback=startAssistant, bouncetime=500)
   GPIO.add_event_detect(11,GPIO.RISING,callback=startStopwatchMenu, bouncetime=500)
   GPIO.add_event_detect(12,GPIO.RISING,callback=startMetronomeMenu, bouncetime=500)
   GPIO.add_event_detect(13,GPIO.RISING,callback=startAudiobookMenu, bouncetime=500)
@@ -1265,16 +1214,9 @@ def startAssistantMenu(t="t"):
 def startStopwatchMenu(t="t"):
   # In the future: Add pause/play
   speak("Stopwatch menu")
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(11)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(13)
-  GPIO.remove_event_detect(15)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(19)
+  removeGPIO()
 
-  GPIO.add_event_detect(10,GPIO.RISING,callback=stopStopwatch, bouncetime=500)
+  GPIO.add_event_detect(21,GPIO.RISING,callback=stopStopwatch, bouncetime=500)
   GPIO.add_event_detect(11,GPIO.RISING,callback=startStopwatch, bouncetime=500)
   GPIO.add_event_detect(12,GPIO.RISING,callback=readStopwatch, bouncetime=500)
   GPIO.add_event_detect(13,GPIO.RISING,callback=none, bouncetime=500)
@@ -1285,16 +1227,9 @@ def startStopwatchMenu(t="t"):
 
 def startMetronomeMenu(t="t"):
   speak("Metronome menu")
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(11)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(13)
-  GPIO.remove_event_detect(15)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(19)
+  removeGPIO()
 
-  GPIO.add_event_detect(10,GPIO.RISING,callback=bpmUpOne, bouncetime=500)
+  GPIO.add_event_detect(21,GPIO.RISING,callback=bpmUpOne, bouncetime=500)
   GPIO.add_event_detect(11,GPIO.RISING,callback=bpmUpFive, bouncetime=500)
   GPIO.add_event_detect(12,GPIO.RISING,callback=bpmDownOne, bouncetime=500)
   GPIO.add_event_detect(13,GPIO.RISING,callback=bpmDownFive, bouncetime=500)
@@ -1305,19 +1240,10 @@ def startMetronomeMenu(t="t"):
   startMetronome()
 
 def startAudiobookMenu(t="t"):
-  GPIO.remove_event_detect(11)
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(22)
-  GPIO.remove_event_detect(24)
-  GPIO.remove_event_detect(26)
-
-
+  removeGPIO()
 
   GPIO.add_event_detect(11,GPIO.RISING,callback=shuffleMusic)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=firstAid)
+  GPIO.add_event_detect(21,GPIO.RISING,callback=firstAid)
   GPIO.add_event_detect(12,GPIO.RISING,callback=playMusic)
   GPIO.add_event_detect(16,GPIO.RISING,callback=stop)
   GPIO.add_event_detect(18,GPIO.RISING,callback=button_callback5)
@@ -1326,19 +1252,10 @@ def startAudiobookMenu(t="t"):
   GPIO.add_event_detect(26,GPIO.RISING,callback=button_callback8)
 
 def startMapMenu(t="t"):
-  GPIO.remove_event_detect(11)
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(22)
-  GPIO.remove_event_detect(24)
-  GPIO.remove_event_detect(26)
-
-
+  removeGPIO()
 
   GPIO.add_event_detect(11,GPIO.RISING,callback=shuffleMusic)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=firstAid)
+  GPIO.add_event_detect(21,GPIO.RISING,callback=firstAid)
   GPIO.add_event_detect(12,GPIO.RISING,callback=playMusic)
   GPIO.add_event_detect(16,GPIO.RISING,callback=stop)
   GPIO.add_event_detect(18,GPIO.RISING,callback=button_callback5)
@@ -1347,28 +1264,16 @@ def startMapMenu(t="t"):
   GPIO.add_event_detect(26,GPIO.RISING,callback=button_callback8)
 
 def startRemoteMenu(t="t"):
-  GPIO.remove_event_detect(11)
-  GPIO.remove_event_detect(10)
-  GPIO.remove_event_detect(12)
-  GPIO.remove_event_detect(16)
-  GPIO.remove_event_detect(18)
-  GPIO.remove_event_detect(22)
-  GPIO.remove_event_detect(24)
-  GPIO.remove_event_detect(26)
-
-
+  removeGPIO()
 
   GPIO.add_event_detect(11,GPIO.RISING,callback=remoteUp)
-  GPIO.add_event_detect(10,GPIO.RISING,callback=remoteRight)
+  GPIO.add_event_detect(21,GPIO.RISING,callback=remoteRight)
   GPIO.add_event_detect(12,GPIO.RISING,callback=remoteDown)
   GPIO.add_event_detect(16,GPIO.RISING,callback=remoteLeft)
   GPIO.add_event_detect(18,GPIO.RISING,callback=remoteClick)
   GPIO.add_event_detect(22,GPIO.RISING,callback=remotePausePlay)
   GPIO.add_event_detect(24,GPIO.RISING,callback=remoteBack)
   GPIO.add_event_detect(26,GPIO.RISING,callback=startMainMenu)
-
-def startNavigationMenu(t="t"):
-  print("A menu for naviagting maps. Might use cloud maps. When reading a map, save it to a file")
 
 
 
@@ -1397,32 +1302,14 @@ def translate(inLan, toLan, sentence):
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 
-GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.add_event_detect(10,GPIO.RISING,callback=test, bouncetime=500)
-
+GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.add_event_detect(11,GPIO.RISING,callback=test, bouncetime=500)
-
 GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.add_event_detect(12,GPIO.RISING,callback=test, bouncetime=500)
-
 GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.add_event_detect(13,GPIO.RISING,callback=test, bouncetime=500)
-
 GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
-GPIO.add_event_detect(15,GPIO.RISING,callback=test, bouncetime=500) 
-
 GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.add_event_detect(16,GPIO.RISING,callback=test, bouncetime=500)
-
 GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.add_event_detect(18,GPIO.RISING,callback=test, bouncetime=500)
-
 GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.add_event_detect(19,GPIO.RISING,callback=test, bouncetime=500)
-
-
-
 
 speak("Welcome. System ready.")
 startMainMenu("True")
@@ -1437,6 +1324,3 @@ while(True):
       print("Shutdown computer")
     elif command[0]=="sound":
       speak("Sound test")
-
-
-#Each button calls its own function. When a new menu is called, a global function or class variable changes what happens in the button's function
