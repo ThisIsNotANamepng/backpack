@@ -7,6 +7,7 @@ It has similar functionality, with the exception of doing everything offline and
 It uses python to manage everything, from the GPIO pins on the Raspberry Pi, to the Text To Speech, to the music, to the tools inside.
 
 As of now, it can 
+* Speak
 * Play, pause, skip, and shuffle downloaded music
 * Create timers
 * Start stop, and read a stopwatch
