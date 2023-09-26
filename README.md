@@ -1,4 +1,4 @@
-# ASB - Assistent Subsystem for Backpacks
+# ASB - Assistant Subsystem for Backpacks
 
 ASB is a assistent inspired by mobile assistants such as Google Home, Siri, Alexa, and the integrated assistant device [Jacquard](https://atap.google.com/jacquard/). 
 
